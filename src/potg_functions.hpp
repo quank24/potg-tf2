@@ -8,13 +8,29 @@
 #include <fstream>  // file i/o
 #include <string>  // for string operations
 
-bool descriptor_in_line(std::string pLine, bool pRoundInProgress) {
-  if (pRoundInProgress) {
+#include "constants.hpp"
 
+/********** **********
+* STRUCTS
+********** **********/
+struct Name {
+  bool roundInProgress;
+};
+/********** **********
+* FUNCTIONS
+********** **********/
+void descriptor_in_line(std::string pLine, bool &pRoundInProgress) {
+  if (pRoundInProgress) {
+    // something
   } else {
-    
+    std::size_t start = pLine.find(WORLD_TRIGGERED);
+    if (start != std::string::npos) {
+      pRoundInProgress = true;
+    }
   }
-}
+  return;
+  // returns
+} // end descriptor_in_line
 
 void foo (std::string pFileName) {
   ifstream fin(file_name.c_str());
@@ -28,8 +44,8 @@ void foo (std::string pFileName) {
   // will store the lines in the log file, one by one
   bool roundInProgress = false;
   while (fin >> line) {
-    descriptor_in_line(line, roundInProgress)
+    descriptor_in_line(line, &roundInProgress)
   }
-}
+} //
 
 #endif  // POTG_FUNCTION_HPP

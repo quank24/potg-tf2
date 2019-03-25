@@ -10,7 +10,7 @@ Version 1.05
 	- added calculatePoints function to tally up points instead of kills to calculate potg
 	- getTimes: nothing
 	- findPotG: changed it to calculate points within 10 seconds instead of kills
-	- outputToCSV: changed output final name to change with file name, 
+	- outputToCSV: changed output final name to change with file name,
 '''
 
 import sys
@@ -44,7 +44,7 @@ def getLocations(allLines):
 	locations = []
 	#list with the indeces of points
 	locationDescription = []
-	#lists what the point was so I don't have to redo it later
+	#lists what the point was, so I don't have to redo it later
 	lineNumber = 0
 	for line in allLines:
 		(low, high) = getDescriptorLowHigh(line)
@@ -52,7 +52,7 @@ def getLocations(allLines):
 		#unpack tuple into 2 variables
 		worldTrigger = False
 		#fix for world trigger and team lines fucking it up
-		
+
 		if roundInProgress:
 			(descriptor, lineNumBool, rIP) = getProgressDescriptor(line, worldTrigger, roundInProgress, low, high)
 			#unpack tuple, returns tuple of whether there were points and updating roundInProgress
@@ -63,7 +63,7 @@ def getLocations(allLines):
 				#adds the line to the list if there were points that line
 				locationDescription.append(descriptor)
 				#adds the name of what point they got
-		
+
 		if line[low:high+22] == 'World triggered "Round_Start"':
 			roundInProgress = True
 			#changes roundInProgress to True so that the if statement above executes
@@ -74,15 +74,15 @@ def getLocations(allLines):
 def getDescriptorLowHigh(line):	#getLocations helper function
 	low = 0
 	high = 7
-	
+
 	worldTrigger = False
-	
+
 	while (line[low:high] != '<Blue>"' and line[low:high] != '><Red>"' and
 			line[low:high] != 'World t' and line[low:high] != 'known>"' and
 			line[low:high] != 'Team "R' and line[low:high] != 'Team "B'):
 		#goes up to the point in the line where the descriptor is or
 		#when its a world or team line it stops
-		
+
 		low += 1
 		high += 1
 	return (low,high)
@@ -91,7 +91,7 @@ def getDescriptorLowHigh(line):	#getLocations helper function
 def getProgressDescriptor(line, worldTrigger, roundInProgress, low, high):	#getLocations helper function
 	pointsBool = False
 	descriptor = ''
-	try:	
+	try:
 		if line[high-1] == 't' or line[high-1] == 'R' or line[high-1] == 'B':
 			worldTrigger = True
 		#for when it tries to compare an int to a char
@@ -106,7 +106,7 @@ def getProgressDescriptor(line, worldTrigger, roundInProgress, low, high):	#getL
 		descriptor = descriptor[:-1]
 		#goes til the '"' after the descriptor so need to take the '"'
 		#off of the end
-		
+
 		if descriptor == 'killed':
 			pointsBool = True
 			#most kills are under killed and not triggered
@@ -119,7 +119,7 @@ def getProgressDescriptor(line, worldTrigger, roundInProgress, low, high):	#getL
 				high += 1
 			if secondary in triggerListFlat or secondary in triggerListScale:
 				pointsBool = True
-				#this will contain only the lines 
+				#this will contain only the lines
 			descriptor = secondary
 	else:
 		if line[low:high+20] == 'World triggered "Round_Win"':
@@ -133,7 +133,7 @@ def getNamesAndLocations(allLines, locations, locationDescription):
 	personalLocations = []
 	#list of lists of where each name's points are
 	locationDescriptionList = []
-	
+
 	for line in range(len(locations)):
 		low = 0
 		while allLines[locations[line]][low] != '"':
@@ -147,11 +147,11 @@ def getNamesAndLocations(allLines, locations, locationDescription):
 				name = name[:-1]
 			#depends on whether the number assigned to the player was a single digit or double digit
 			#so this catches in case there are 2 digits assigned to them
-			
+
 			try:
 				namesIndex = names.index(name)
 				#return index of name if it is in the list, otherwise it goes down to except
-				
+
 				personalLocations[namesIndex].append(locations[line])
 				locationDescriptionList[namesIndex].append(locationDescription[line])
 			except ValueError:
@@ -162,7 +162,7 @@ def getNamesAndLocations(allLines, locations, locationDescription):
 				locationDescriptionList[len(locationDescriptionList)-1].append(locationDescription[line])
 		except ValueError:
 			pass
-	return (names, personalLocations, locationDescriptionList)	
+	return (names, personalLocations, locationDescriptionList)
 #end getNamesAndKills
 
 def calculatePoints(allLines, personalLocations, locationDescriptionList):
@@ -170,7 +170,7 @@ def calculatePoints(allLines, personalLocations, locationDescriptionList):
 	for person in range(len(personalLocations)):
 		points.append([])
 		for pointLine in range(len(personalLocations[person])):
-			
+
 			if locationDescriptionList[person][pointLine] in triggerListFlat:
 				points[person].append(triggerListFlat[locationDescriptionList[person][pointLine]])
 			else:	#if not in flat, it'll be in scale list
@@ -185,14 +185,14 @@ def calculatePoints(allLines, personalLocations, locationDescriptionList):
 					(low, high) = getDescriptorLowHigh(allLines[personalLocations[person][pointLine]])
 					#high will be where the first person's name ends
 					amountString = allLines[personalLocations[person][pointLine]][high:]
-					
+
 					(low, high) = getDescriptorLowHigh(amountString)
 					#will return the end of the second player's name, which is where the damage starts
 					amountString = amountString[high:]
 					#time to parse
 				else:
 					print('you done fucked up')
-				
+
 				quoteCount = 0
 				#heal amount is between quotes
 				stringCount = 0
@@ -206,7 +206,7 @@ def calculatePoints(allLines, personalLocations, locationDescriptionList):
 						quoteCount += 1
 					stringCount += 1
 				amount = int(amount[:-1])
-				
+
 				if locationDescriptionList[person][pointLine] == 'healed':
 					points[person].append(amount*triggerListScale['healed'])
 				elif locationDescriptionList[person][pointLine] == 'medic_death_ex':
@@ -221,7 +221,7 @@ def calculatePoints(allLines, personalLocations, locationDescriptionList):
 def getTimes(allLines, names, personalLocations):
 	personalTimes = []
 	#list of lists for the time of each person's kill(s)
-	
+
 	for i in range(len(names)):
 		personalTimes.append([])
 		#adds a list for this person's kills
@@ -281,7 +281,7 @@ def outputToCSV(names, points, bestPerson, highestPoints, timeOfPotG):
 			totPoints += points[i][j]
 		fout.write(names[i] + ',' + str(totPoints) + '\n')
 	fout.write('PotG,' + names[bestPerson] + ',Points: ' + str(highestPoints) + ',time:' + timeOfPotG)
-	
+
 	fout.close()
 	return
 #end outputToCSV
@@ -311,8 +311,3 @@ outputToCSV(names, points, bestPerson, highestPoints, timeOfPotG)
 #outputs the names and kills to a csv file
 
 #---------- ---------- end main ---------- ----------
-
-
-
-
-

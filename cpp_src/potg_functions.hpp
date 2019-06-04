@@ -1,9 +1,7 @@
 /*
- * 
+ * Reinoj, 2019
  */
-void foo() {}
-
-
+ 
 #ifndef POTG_FUNCTION_HPP
 #define POTG_FUNCTION_HPP
 
@@ -25,14 +23,37 @@ namespace potg {
 	 * STRUCTS
 	 * -----------------------------------------------------------------------*/
 	struct PlayerStats {
+		PlayerStats(std::string n, std::queue<std::tuple<int,double>> tsq) {
+			name = n;
+			ten_second_queue = tsq;
+		}
 		std::string name;
 		std::queue<std::tuple<int, double>> ten_second_queue;
 	};
 
+	struct PlayerInfo {
+		PlayerInfo(std::string n, int t, double p) {
+			name = n;
+			time = t;
+			points = p;
+		}
+		std::string name;
+		int time;
+		double points;
+	};
+	
 	struct DriverInfo {
+		DriverInfo(std::string l, bool rip, std::vector<PlayerStats> ap, PlayerInfo b) {
+			line = l;
+			round_in_progress = rip;
+			all_players = ap;
+			best = b;
+		}
 		std::string line;
 		bool round_in_progress;
-		std::vector<PlayerStats> player_stats_vector;
+		std::vector<PlayerStats> all_players;
+		PlayerInfo best;
+		
 	};
 	/* -------------------------------------------------------------------------
 	 * FUNCTIONS
@@ -58,7 +79,7 @@ namespace potg {
 	 * 	seconds - converted number of seconds from a time stamp
 	 */
 	void seconds_to_time(int seconds) {
-		std::string time[3] = {"", "", ""};
+		std::string time[3];
 		int count = 0;
 		std::stringstream ret_str
 		while (seconds >= 60) {
@@ -74,31 +95,92 @@ namespace potg {
 			// clear stringstream
 		}
 		return time[0] + ":" + time[1] + ":" + time[2];
-	}// seconds_to_time
+	}// end seconds_to_time
+	
+	/*
+	 * description:
+	 * 	gets an unknown length number in a string to an double
+	 * parameters:
+	 * 	line: the line with a damage or heal value
+	 * 	index: integer index of the first number in the damage or healing amount
+	 */
+	double damage_heal_amount(const std::string& line, std::size_t& index) {
+		std::string amount_str = "";
+		while (line[index] != "\"") {
+			amount_str += line[index];
+			index++;
+		}
+		return amount_str;
+	}
+	
+	/*
+	 * description:
+	 * 	returns a double for the number of points that the current line was worth. 
+	 * parameters:
+	 * 	line: current line from the log file
+	 * 	descriptor_start: the index where the description starts
+	 */
+	double calculate_points(const std::string& line, const std::size_t& descriptor_start) {
+		std::string descriptor = "";
+		int index = descriptor_start;
+		while (line[index] != "\"") {
+			descriptor += line[index];
+		}
+		switch(descriptor) {
+			case "killed":
+				return 25.0;
+			case "kill assist":
+				return 10.0;
+			case "jarate_attack":
+				// also returns 5.0
+			case "killedobject":
+				return 5.0;
+			case "healed":
+				std::size_t heal_index = line.find(">\" (healing \"");
+				heal_index += 13;
+				// first index of the heal amount
+				return std::stoi(damage_heal_amount(line, heal_index));
+			case "damage":
+				std::size_t damage_index = line.find(">\" (damage \"");
+				damage_index += 12;
+				// first index of the damage amount
+				return 2 * std::stoi(damage_heal_amount(line, damage_index));
+			case "medic_death_ex":
+				//
+			default:
+				cout << descriptor << " is not in the map\n";
+				exit(1);
+		}
+	}// end calculate_points 
 	
 	/*
 	 * 
 	 * parameters:
-	 * 	pLine - string of the current line in the file
-	 * 	pRoundInProgress - boolean of whether the current line is between the
-	 * 		round start and round win lines in the log file
+	 * 	di: struct that contains:
 	 */
-	void descriptor_in_line(const std::string& pLine, bool &p_round_in_progress) {
-	  if (p_round_in_progress) {
-		std::size_t win = pLine.find(WORLD_TRIGGERED_WIN);
-		if (win != std::string::npos) {
-			p_round_in_progress = false;
+	void descriptor_in_line(DriverInfo& di) {
+		if (di.round_in_progress) {
+			if (find_descriptor(potg::WORLD_TRIGGERED_WIN, line) != std::string::npos) {
+				di.round_in_progress = false;
+			} else {
+				for (auto& map_element : potg::POINTS) {
+					std::size_t descriptor_start = line.find(map_element->first);
+					if (descriptor_start != std::string::npos) {
+						// something = calculate_points(di.line, descriptor_start);
+						break;
+						/* leave the for loop since we don't need to look for a
+						 * 	match anymore */
+					}
+				}//end for
+			}
 		} else {
-			// look for points
+			std::size_t start = di.line.find(potg::WORLD_TRIGGERED_START);
+			/* gets the starting index if it is in the line, otherwise it is
+			 *  string::npos (the maximum value for size_t */
+			if (start != std::string::npos) {
+			  di.round_in_progress = true;
+			}
 		}
-	  } else {
-		std::size_t start = pLine.find(WORLD_TRIGGERED_START);
-		/* gets the starting index if it is in the line, otherwise it is
-		 *  string::npos (the maximum value for size_t */
-		if (start != std::string::npos) {
-		  p_round_in_progress = true;
-		}
-	  }
 	  return;
 	}// end descriptor_in_line
 
@@ -106,19 +188,21 @@ namespace potg {
 	 * 
 	 */
 	void driver(std::string p_file_name) {
-	  ifstream fin(p_file_name.c_str());
-	  if (fin.fail()) {
-		std::cout << "Could not open " << p_file_name << std::endl;
-		exit(1);
-	  }
-	  // if past the fail if-statement, then the file successfully opened.
+		ifstream fin(p_file_name.c_str());
+		if (fin.fail()) {
+			std::cout << "Could not open " << p_file_name << std::endl;
+			exit(1);
+		}
+		// if past the fail if-statement, then the file successfully opened.
 
-	  std::string line;
-	  // will store the lines in the log file, one by one
-	  bool round_in_progress = false;
-	  while (fin >> line) {
-		descriptor_in_line(&line, &round_in_progress)
-	  }
+		std::string line;
+		// stores the lines in the log file, one by one
+		DriverInfo di("", false, std::vector<PlayerStats>, PlayerInfo("none", 0), );
+		// object that will be passed to the descriptor function
+		while (fin >> line) {
+			di.line = line;
+			descriptor_in_line(di);
+		}
 	}// end driver
 }// end namespace potg
-#endif  // POTG_FUNCTION_HPP
+#endif // POTG_FUNCTION_HPP

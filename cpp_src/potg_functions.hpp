@@ -17,7 +17,7 @@ namespace potg {
 	#include <string>	// string operations
 	#include <vector>	// vector operations
 
-	#include "constants.hpp"
+	#include "cpp_src/constants.hpp"
 
 	/* -------------------------------------------------------------------------
 	 * STRUCTS

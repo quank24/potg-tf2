@@ -16,7 +16,8 @@ namespace potg {
 		{"killedobject", 5},
 		{"healed", 1},
 		{"damage", 2},
-		{"medic_death_ex", 0.02}
+		{"medic_death_ex", 0.02},
+		{"medic_kill", 20.0}
 	}
 }// end namespace potg
 

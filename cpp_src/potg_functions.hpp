@@ -126,15 +126,13 @@ namespace potg {
 		while (line[index] != "\"") {
 			descriptor += line[index];
 		}
+		double value = POINTS[descriptor];
 		switch(descriptor) {
 			case "killed":
-				return 25.0;
 			case "kill assist":
-				return 10.0;
 			case "jarate_attack":
-				// also returns 5.0
 			case "killedobject":
-				return 5.0;
+				return value;
 			case "healed":
 				std::size_t heal_index = line.find(">\" (healing \"");
 				heal_index += 13;
@@ -146,7 +144,10 @@ namespace potg {
 				// first index of the damage amount
 				return 2 * std::stoi(damage_heal_amount(line, damage_index));
 			case "medic_death_ex":
-				//
+				std::size_t medic_index = line.find("medic_death_ex\" (uberpct \"");
+				medic_index += 25;
+				// first index of the uber percentae when killed
+				return POINTS["medic_kill"] +  std::stoi(damage_heal_amount(line, medic_index));
 			default:
 				cout << descriptor << " is not in the map\n";
 				exit(1);

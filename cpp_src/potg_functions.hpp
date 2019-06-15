@@ -46,20 +46,28 @@ namespace potg {
 	 * 	seconds - converted number of seconds from a time stamp
 	 */
 	std::string seconds_to_time(int seconds) {
-		std::string time[3];
-		int count = 0;
-		while (seconds >= 60) {
-			std::stringstream ret_str;
-			int tmp = seconds % 60;
-			seconds /= 60;
-			ret_str << std::setw(2) << std::setfill('0') << std::to_string(tmp);
-			/* adds a 0 to the front of the string if it is only one
-			 * character */
-			time[count] = ret_str.str();
-			// set the hours, minutes, or seconds to the string
-			count++;
+		int time[3] = {0, 0, 0};
+		
+		time[0] = seconds/3600;
+		if (time[0]) {
+			seconds -= (3'600 * time[0]);
 		}
-		return time[0] + ":" + time[1] + ":" + time[2];
+		
+		time[1] = seconds/60;
+		if (time[1]) {
+			seconds -= (60 * time[1]);
+		}
+		
+		time[2] = seconds;
+		
+		std::stringstream ret_str;
+		for (int i=0; i<3; ++i) {
+			ret_str << std::setw(2) << std::setfill('0') << std::to_string(time[i]);
+			if (i<2) {
+				ret_str << ":";
+			}
+		}
+		return ret_str.str();
 	}// end seconds_to_time
 	
 	/*

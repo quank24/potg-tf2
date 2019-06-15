@@ -4,6 +4,8 @@
 #ifndef CONSTANTS_H
 #define CONSTANTS_H
 
+#include <map>
+
 namespace potg {
 	const std::string WORLD_TRIGGERED_START = "World triggered \"Round_Start\"";
 
@@ -18,7 +20,7 @@ namespace potg {
 		{"damage", 2},
 		{"medic_death_ex", 0.02},
 		{"medic_kill", 20.0}
-	}
+	};
 }// end namespace potg
 
 #endif // CONSTANTS_H

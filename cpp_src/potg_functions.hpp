@@ -15,7 +15,7 @@
 #include <sstream>	// std::stringstream, .str()
 #include <string>	// string operations
 #include <vector>	// vector operations
-
+#include <typeinfo>
 #include "constants.hpp"
 #include "player_stats.hpp"
 #include "player_info.hpp"
@@ -47,45 +47,55 @@ namespace potg {
 	 */
 	std::string seconds_to_time(int seconds) {
 		int time[3] = {0, 0, 0};
+		// initialize the values to 0
 		
 		time[0] = seconds/3600;
+		// gets hours
 		if (time[0]) {
 			seconds -= (3'600 * time[0]);
+			// takes the hours off of the total
 		}
 		
 		time[1] = seconds/60;
+		// gets minutes
 		if (time[1]) {
 			seconds -= (60 * time[1]);
+			// takes the minutes off of the total
 		}
 		
 		time[2] = seconds;
+		// assigns remaining to seconds
 		
 		std::stringstream ret_str;
+		// formatting the string
 		for (int i=0; i<3; ++i) {
 			ret_str << std::setw(2) << std::setfill('0') << std::to_string(time[i]);
+			// want the number to be 2 characters wide with leading 0's if necessary
 			if (i<2) {
 				ret_str << ":";
+				// only have colons between hours:minutes and minutes:seconds
 			}
 		}
 		return ret_str.str();
+		// returns the stringstream as a string
 	}// end seconds_to_time
 	
 	/*
 	 * description:
-	 * 	gets an unknown length number in a string to an double
+	 * 	gets an unknown length number in a string
 	 * parameters:
-	 * 	line: the line with a damage or heal value
+	 * 	line: the line with a damage, heal, or medic_death value - " ...###"... "
 	 * 	index: integer index of the first number in the damage or healing amount
 	 */
-/*	double damage_heal_amount(const std::string& line, std::size_t& index) {
+	std::string get_num(const std::string& line, std::size_t& index) {
 		std::string amount_str = "";
-		while (line[index] != "\"") {
+		while (line[index] != '\"') {
 			amount_str += line[index];
 			index++;
 		}
 		return amount_str;
 	}
-*/	
+	
 	/*
 	 * description:
 	 * 	returns a double for the number of points that the current line was worth. 
@@ -110,17 +120,17 @@ namespace potg {
 				std::size_t heal_index = line.find(">\" (healing \"");
 				heal_index += 13;
 				// first index of the heal amount
-				return std::stoi(damage_heal_amount(line, heal_index));
+				return std::stoi(get_num(line, heal_index));
 			case "damage":
 				std::size_t damage_index = line.find(">\" (damage \"");
 				damage_index += 12;
 				// first index of the damage amount
-				return 2 * std::stoi(damage_heal_amount(line, damage_index));
+				return 2 * std::stoi(get_num(line, damage_index));
 			case "medic_death_ex":
 				std::size_t medic_index = line.find("medic_death_ex\" (uberpct \"");
 				medic_index += 25;
 				// first index of the uber percentae when killed
-				return POINTS["medic_kill"] +  std::stoi(damage_heal_amount(line, medic_index));
+				return POINTS["medic_kill"] +  std::stoi(get_num(line, medic_index));
 			default:
 				cout << descriptor << " is not in the map\n";
 				exit(1);

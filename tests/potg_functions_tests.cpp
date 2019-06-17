@@ -6,26 +6,29 @@
 #include "../cpp_src/potg_functions.hpp"
 
 TEST(TimeTests, TimeToSeconds) {
-	std::string first("00:00:00"),
-		seconds("00:00:30"),
-		minutes("00:09:30"),
-		last("23:59:59");
+	std::string str_times[4] = {
+		"00:00:00", "00:00:30", "00:09:30", "23:59:59"
+	};
+	int int_times[4] = {
+		0, 30, 570, 86'399
+	};
 	
-	EXPECT_EQ(potg::time_to_seconds(first), 0);
-	EXPECT_EQ(potg::time_to_seconds(seconds), 30);
-	EXPECT_EQ(potg::time_to_seconds(minutes), 570);
-	EXPECT_EQ(potg::time_to_seconds(last), 86'399);
+	for (std::size_t i=0; i<4; ++i) {
+		EXPECT_EQ(potg::time_to_seconds(str_times[i]), int_times[i]);
+	}
 }
 
 TEST(TimeTests, SecondsToTime) {
-	int first(0),
-		seconds(30),
-		minutes(570),
-		last(86'399);
-	EXPECT_EQ(potg::seconds_to_time(first), "00:00:00");
-	EXPECT_EQ(potg::seconds_to_time(seconds), "00:00:30");
-	EXPECT_EQ(potg::seconds_to_time(minutes), "00:09:30");
-	EXPECT_EQ(potg::seconds_to_time(last), "23:59:59");
+	std::string str_times[4] = {
+		"00:00:00", "00:00:30", "00:09:30", "23:59:59"
+	};
+	int int_times[4] = {
+		0, 30, 570, 86'399
+	};
+	
+	for (std::size_t i=0; i<4; ++i) {
+		EXPECT_EQ(potg::seconds_to_time(int_times[i]), str_times[i]);
+	}
 }
 
 TEST(ParseTests, GetNum) {

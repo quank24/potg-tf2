@@ -16,8 +16,8 @@ namespace potg {
 			// all_players will start off empty
 			best = PlayerInfo();
 		}
-		DriverInfo(std::string l, bool rip, std::vector<PlayerStats> ap, PlayerInfo b) :
-			line(l), round_in_progress(rip), all_players(ap), best(b) {}
+		DriverInfo(std::string l, bool rip, std::string mk, std::vector<PlayerStats> ap, PlayerInfo b) :
+			line(l), round_in_progress(rip), medic_killer(mk), all_players(ap), best(b) {}
 		DriverInfo(const DriverInfo& di) {
 			line = di.line;
 			round_in_progress = di.round_in_progress;
@@ -26,6 +26,7 @@ namespace potg {
 		}
 		std::string line;
 		bool round_in_progress;
+		std::string medic_killer;
 		std::vector<PlayerStats> all_players;
 		PlayerInfo best;
 	};

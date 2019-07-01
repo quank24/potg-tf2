@@ -97,46 +97,94 @@ namespace potg {
 	}
 	
 	/*
+	 * 
+	 */
+	std::string get_name(const std::string& line) {
+		std::size_t start = line.find("\"") + 1;
+		// gets the index of the first character of the steam name
+		if (start == std::string::npos) {
+			std::cout << "no \" in the line.\n" << line << std::endl;
+			exit(1);
+		} else {
+			std::size_t end = line.find("><[U:");
+			if (end == std::string::npos) {
+				std::cout << "no ><[U: in the line.\n" << line << std::endl;
+				exit(1);
+			}
+			
+			while (line[end] != '<') {
+				end--;
+			} // gets the index right after the last character of the steam name
+			return line.substr(start, end-start); // start index, length of the substring
+		}
+	}
+	
+	/*
 	 * description:
 	 * 	returns a double for the number of points that the current line was worth. 
 	 * parameters:
 	 * 	line: current line from the log file
 	 * 	descriptor_start: the index where the description starts
 	 */
-/*	double calculate_points(const std::string& line, const std::size_t& descriptor_start) {
-		std::string descriptor = "";
+	std::tuple<double, std::string> calculate_points(const std::string& line, const std::size_t& descriptor_start) {
+		std::string descriptor(""), med_killer("");
 		int index = descriptor_start;
-		while (line[index] != "\"") {
+		while (line[index] != '\"') {
 			descriptor += line[index];
+			index++;
 		}
-		double value = POINTS[descriptor];
-		switch(descriptor) {
-			case "killed":
-			case "kill assist":
-			case "jarate_attack":
-			case "killedobject":
-				return value;
-			case "healed":
-				std::size_t heal_index = line.find(">\" (healing \"");
-				heal_index += 13;
-				// first index of the heal amount
-				return std::stoi(get_num(line, heal_index));
-			case "damage":
-				std::size_t damage_index = line.find(">\" (damage \"");
-				damage_index += 12;
-				// first index of the damage amount
-				return 2 * std::stoi(get_num(line, damage_index));
-			case "medic_death_ex":
-				std::size_t medic_index = line.find("medic_death_ex\" (uberpct \"");
-				medic_index += 25;
-				// first index of the uber percentae when killed
-				return POINTS["medic_kill"] +  std::stoi(get_num(line, medic_index));
+		double value = potg::POINTS[descriptor];
+		int descriptor_value = potg::SWITCH_VALUE[descriptor];
+		switch(descriptor_value) {
+			case 0: // killed
+			case 1: // kill assist
+			case 2: // jarate_attack
+			case 3: // killedobject
+				// do nothing because we just want the value, but dont want it to return an error
+				// I could probably just not have this and rewrite it, but maybe later
+				break;
+			case 4: // healed
+				{
+					std::size_t heal_index = line.find(">\" (healing \"");
+					heal_index += 13;
+					// first index of the heal amount
+					value = std::stoi(get_num(line, heal_index));
+				}
+				break;
+			case 5: // damage
+				{
+					std::size_t damage_index = line.find(">\" (damage \"");
+					damage_index += 12;
+					// first index of the damage amount
+					value *= std::stoi(get_num(line, damage_index));
+				}
+				break;
+			case 6: // medic_death
+				{
+					med_killer = get_name(line);
+				}
+				break;
+			case 7: // medic_death_ex
+				{
+					std::size_t medic_index = line.find("medic_death_ex\" (uberpct \"");
+					medic_index += 26;
+					// first index of the uber percentae when killed
+					int uberpct = std::stoi(get_num(line, medic_index));
+					value *= uberpct;
+					value += ((uberpct/100) * (-1 * potg::POINTS["medic_death"]));
+					// integer division, so if the uber was full it'll equal 1
+					// then it multiplies the negative number from medic death by -0.5, as a bonus for killing a medic with full uber
+					// so with a full uber it would be 100*0.05 = 5 and 1*-1*-5 = 5, which would bring the total up to 30
+					// ^^ when kills=25, medic_death=-5, medic_death_ex=0.05
+				}
+				break;
 			default:
-				cout << descriptor << " is not in the map\n";
+				std::cout << descriptor << " is not in the map\n";
 				exit(1);
 		}
+		return std::make_tuple(value, med_killer);
 	}// end calculate_points 
-*/	
+	
 	/*
 	 * 
 	 * parameters:
@@ -150,7 +198,10 @@ namespace potg {
 				for (auto& map_element : potg::POINTS) {
 					std::size_t descriptor_start = line.find(map_element->first);
 					if (descriptor_start != std::string::npos) {
-						// something = calculate_points(di.line, descriptor_start);
+						double points;
+						std::string med_killer;
+						// auto [points, med_killer] = calculate_points(di.line, descriptor_start);
+						di.medic_killer = med_killer;
 						break;
 						// leave the for loop since we don't need to look for a match anymore
 					}
@@ -179,7 +230,7 @@ namespace potg {
 
 		std::string line;
 		// stores the lines in the log file, one by one
-		DriverInfo di("", false, std::vector<PlayerStats>, PlayerInfo("none", 0), );
+		DriverInfo di("", false, "", std::vector<PlayerStats>, PlayerInfo("none", 0), );
 		// object that will be passed to the descriptor function
 		while (fin >> line) {
 			di.line = line;

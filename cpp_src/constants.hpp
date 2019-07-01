@@ -11,15 +11,26 @@ namespace potg {
 
 	const std::string WORLD_TRIGGERED_WIN = "World triggered \"Round_Win\"";
 
-	const std::map<std::string, double> POINTS = {
-		{"killed", 25},
+	std::map<std::string, double> POINTS = {
+		{"killed ", 25},  // extra space after killed because it is the only one not surrounded by quotes
 		{"kill assist", 10},
-		{"jarate_attack", 5},
+		{"jarate_attack", 2},
 		{"killedobject", 5},
 		{"healed", 1},
 		{"damage", 2},
-		{"medic_death_ex", 0.02},
-		{"medic_kill", 20.0}
+		{"medic_death", -5}, // killing a medic will be worth less and there's also a line for killed, so this subtracts 5 from the "killed" value
+		{"medic_death_ex", 0.05}
+	};
+	
+	std::map<std::string, int> SWITCH_VALUE = {
+		{"killed", 0},
+		{"kill assist", 1},
+		{"jarate_attack", 2},
+		{"killedobject", 3},
+		{"healed", 4},
+		{"damage", 5},
+		{"medic_death", 6},
+		{"medic_death_ex", 7}
 	};
 }// end namespace potg
 

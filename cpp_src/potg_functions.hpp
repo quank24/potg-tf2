@@ -26,15 +26,14 @@ namespace potg {
 	 * FUNCTIONS
 	 * -----------------------------------------------------------------------*/
 	/*
-	 * takes the string of the time stamp and converts it to an integer number
-	 *  of seconds.
+	 * takes the line and converts the time to an integer number of seconds.
 	 * parameters:
-	 * 	str - time stamp in format "hh:mm:ss"
+	 * 	line - a line from the log files
 	 */
-	int time_to_seconds(const std::string& str) {
-		return ( (std::stoi(str.substr(0, 2)) * 3600) +
-				 (std::stoi(str.substr(3, 2)) * 60) +
-				 (std::stoi(str.substr(6, 2))) );
+	int time_to_seconds(const std::string& line) {
+		return ( (std::stoi(line.substr(15, 2)) * 3600) +
+				 (std::stoi(line.substr(18, 2)) * 60) +
+				 (std::stoi(line.substr(21, 2))) );
 		// hour * 60 * 60 -> seconds
 		// minute * 60 -> seconds
 	}// end time_to_seconds
@@ -119,6 +118,7 @@ namespace potg {
 		}
 	}
 	
+	
 	/*
 	 * description:
 	 * 	returns a double for the number of points that the current line was worth. 
@@ -133,8 +133,8 @@ namespace potg {
 			descriptor += line[index];
 			index++;
 		}
-		double value = potg::POINTS[descriptor];
-		int descriptor_value = potg::SWITCH_VALUE[descriptor];
+		double value = POINTS[descriptor];
+		int descriptor_value = SWITCH_VALUE[descriptor];
 		switch(descriptor_value) {
 			case 0: // killed
 			case 1: // kill assist
@@ -171,7 +171,7 @@ namespace potg {
 					// first index of the uber percentae when killed
 					int uberpct = std::stoi(get_num(line, medic_index));
 					value *= uberpct;
-					value += ((uberpct/100) * (-1 * potg::POINTS["medic_death"]));
+					value += ((uberpct/100) * (-1 * POINTS["medic_death"]));
 					// integer division, so if the uber was full it'll equal 1
 					// then it multiplies the negative number from medic death by -0.5, as a bonus for killing a medic with full uber
 					// so with a full uber it would be 100*0.05 = 5 and 1*-1*-5 = 5, which would bring the total up to 30
@@ -185,30 +185,51 @@ namespace potg {
 		return std::make_tuple(value, med_killer);
 	}// end calculate_points 
 	
+	std::size_t in_vector(const std::vector<PlayerStats>& ps, const std::string& name) {
+		for (std::size_t i=0; i<ps.size(); ++i) {
+			if (ps[i].name == name) {
+				return i;
+			}
+		}
+		return std::string::npos;
+	}
+	
 	/*
 	 * 
 	 * parameters:
 	 * 	di: struct that contains:
 	 */
-/*	void descriptor_in_line(DriverInfo& di) {
+	void descriptor_in_line(DriverInfo& di) {
 		if (di.round_in_progress) {
-			if (find_descriptor(potg::WORLD_TRIGGERED_WIN, line) != std::string::npos) {
+			if (di.line.find(WORLD_TRIGGERED_WIN) != std::string::npos) {
 				di.round_in_progress = false;
 			} else {
-				for (auto& map_element : potg::POINTS) {
-					std::size_t descriptor_start = line.find(map_element->first);
+				for (auto& map_element : POINTS) {
+					std::size_t descriptor_start = di.line.find(map_element.first);
 					if (descriptor_start != std::string::npos) {
-						double points;
-						std::string med_killer;
-						// auto [points, med_killer] = calculate_points(di.line, descriptor_start);
-						di.medic_killer = med_killer;
+						// if the descriptor is in the line then
+						std::tuple<double, std::string> points_med = calculate_points(di.line, descriptor_start);
+						di.medic_killer = std::get<1>(points_med);
+						
+						int time_of_play = time_to_seconds(di.line);
+						std::string scorer_name = get_name(di.line);
+						std::size_t name_index = in_vector(di.all_players, scorer_name);
+						if (name_index == std::string::npos) {
+							// if it returned npos, then that player is not in the queue
+							di.all_players.push_back(PlayerStats(scorer_name));
+							// adds new element to end of vector
+							name_index = di.all_players.size()-1;
+							// sets the name index to the new vector element
+						}
+						di.all_players[name_index].ten_second_queue.push(std::make_tuple(time_of_play, std::get<0>(points_med)));
+						// adds the tuple to that player's queue
 						break;
 						// leave the for loop since we don't need to look for a match anymore
 					}
 				}//end for
 			}
 		} else {
-			std::size_t start = di.line.find(potg::WORLD_TRIGGERED_START);
+			std::size_t start = di.line.find(WORLD_TRIGGERED_START);
 			// gets the starting index if it is in the line, otherwise it is string::npos (the maximum value for size_t
 			if (start != std::string::npos) {
 			  di.round_in_progress = true;
@@ -216,7 +237,7 @@ namespace potg {
 		}
 	  return;
 	}// end descriptor_in_line
-*/
+
 	/*
 	 * 
 	 */

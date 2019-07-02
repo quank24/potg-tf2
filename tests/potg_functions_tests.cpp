@@ -7,7 +7,10 @@
 
 TEST(TimeTests, TimeToSeconds) {
 	std::string str_times[4] = {
-		"00:00:00", "00:00:30", "00:09:30", "23:59:59"
+		"L 03/10/2019 - 00:00:00: ...",
+		"L 03/10/2019 - 00:00:30: ...",
+		"L 03/10/2019 - 00:09:30: ...",
+		"L 03/10/2019 - 23:59:59: ..."
 	};
 	int int_times[4] = {
 		0, 30, 570, 86'399
@@ -76,7 +79,6 @@ TEST(ParseTests, CalculatePoints) {
 		"", "", "", "", "", "", "IWANNAFUCKURBESTFRIEND", "", ""
 	};
 	
-	// note to self, check the name of the guy before you include them in the test cases, oof
 	for (size_t i=0; i<9; ++i) {
 		std::tuple<double, std::string> t = potg::calculate_points(lines[i], desc_start[i]);
 		if (i < 7) {
@@ -89,3 +91,8 @@ TEST(ParseTests, CalculatePoints) {
 		EXPECT_EQ(std::get<1>(t), names[i]);
 	}
 }
+
+/*
+TEST_F(DescriptorTests, DescriptorInLine) {
+	
+}*/

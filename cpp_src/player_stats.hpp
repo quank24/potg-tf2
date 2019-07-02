@@ -11,8 +11,8 @@ namespace potg {
 			name = "";
 			// ten_second_queue will start off empty
 		}
-		PlayerStats(std::string n, std::queue<std::tuple<int,double>> tsq) :
-			name(n), ten_second_queue(tsq) {}
+		PlayerStats(std::string n) : name(n) {}
+		PlayerStats(std::string n, std::queue<std::tuple<int,double>> tsq) : name(n), ten_second_queue(tsq) {}
 		PlayerStats(const PlayerStats& ps) {
 			name = ps.name;
 			ten_second_queue = ps.ten_second_queue;

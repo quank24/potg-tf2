@@ -92,7 +92,21 @@ TEST(ParseTests, CalculatePoints) {
 	}
 }
 
-/*
-TEST_F(DescriptorTests, DescriptorInLine) {
+TEST(DescriptorTests, InVector) {
+	std::vector<potg::PlayerStats> psv;
+	std::string test_name = "Cookie";
 	
-}*/
+	EXPECT_EQ(potg::in_vector(psv, test_name), std::string::npos);
+	// looking in empty vector
+	
+	psv.push_back(potg::PlayerStats("Alpha"));
+	psv.push_back(potg::PlayerStats("Beta"));
+	
+	EXPECT_EQ(potg::in_vector(psv, test_name), std::string::npos);
+	// looking in non-empty vector without the name
+	
+	psv.push_back(potg::PlayerStats("Cookie"));
+	
+	EXPECT_EQ(potg::in_vector(psv, test_name), 2);
+	// looking in non-empty vector with the name
+}

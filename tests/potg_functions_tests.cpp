@@ -110,3 +110,12 @@ TEST(DescriptorTests, InVector) {
 	EXPECT_EQ(potg::in_vector(psv, test_name), 2);
 	// looking in non-empty vector with the name
 }
+
+TEST(DescriptorTests, DescriptorInLine) {
+	std::vector<potg::PlayerStats> psv;
+	potg::PlayerInfo pi;
+	potg::DriverInfo di("L 05/20/2018 - 02:10:04: World triggered \"Round_Start\"", false, "", psv, pi);
+	
+	descriptor_in_line(di);
+	EXPECT_EQ(di.round_in_progress, true);
+}

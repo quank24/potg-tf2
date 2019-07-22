@@ -1,6 +1,7 @@
 /*
  * Reinoj, 2019
  */
+#include <bitset>
 
 #include "gtest/gtest.h"
 #include "../cpp_src/potg_functions.hpp"
@@ -36,11 +37,11 @@ TEST(TimeTests, SecondsToTime) {
 
 TEST(ParseTests, GetNum) {
 	std::string lines[3] = {
-		"L 03/10/2019 - 20:41:36: \"Cookie<51><[U:1:95932440]><Red>\" triggered \"damage\" against \"only pros can crouch jump<39><[U:1:84375638]><Blue>\" (damage \"5\") (weapon \"flamethrower\")",
-		"L 03/10/2019 - 20:41:40: \"i just peed inside your girl<52><[U:1:171261081]><Red>\" triggered \"healed\" against \"Frank from Rhode Island<48><[U:1:133069829]><Red>\" (healing \"29\")",
-		"L 03/10/2019 - 20:42:09: \"i just peed inside your girl<52><[U:1:171261081]><Red>\" triggered \"medic_death_ex\" (uberpct \"3\")"
+		"L 03/10/2019 - 20:41:36: \"testname<51><[U:1:95932440]><Red>\" triggered \"damage\" against \"testname<39><[U:1:84375638]><Blue>\" (damage \"5\") (weapon \"flamethrower\")",
+		"L 03/10/2019 - 20:41:40: \"testname<52><[U:1:171261081]><Red>\" triggered \"healed\" against \"testname<48><[U:1:133069829]><Red>\" (healing \"29\")",
+		"L 03/10/2019 - 20:42:09: \"testname<52><[U:1:171261081]><Red>\" triggered \"medic_death_ex\" (uberpct \"3\")"
 	};
-	std::size_t line_indeces[3] = { 149, 171, 119 };
+	std::size_t line_indeces[3] = { lines[0].find(">\" (damage \"")+12, lines[1].find(">\" (healing \"")+13, lines[2].find("medic_death_ex\" (uberpct \"")+26 };
 	std::string expected_ret_val[3] = { "5", "29", "3" };
 	
 	for (int i=0; i<3; ++i) {
@@ -49,38 +50,41 @@ TEST(ParseTests, GetNum) {
 }
 
 TEST(ParseTests, GetName) {
-	std::string line = "L 03/10/2019 - 20:41:36: \"Cookie<51><[U:1:95932440]><Red>\" triggered \"damage\" against \"only pros can crouch jump<39><[U:1:84375638]><Blue>\" (damage \"5\") (weapon \"flamethrower\")";
+	std::string line = "L 03/10/2019 - 20:41:36: \"testname<51><[U:1:95932440]><Red>\" triggered \"damage\" against \"testname<39><[U:1:84375638]><Blue>\" (damage \"5\") (weapon \"flamethrower\")";
 	
-	EXPECT_EQ(potg::get_name(line), "Cookie");
+	EXPECT_EQ(potg::get_name(line), "testname");
 }
 
 TEST(ParseTests, CalculatePoints) {
 	std::string lines[9] = {
-		"L 03/10/2019 - 20:43:19: \"flexasaurus<45><[U:1:80409878]><Red>\" killed \"Significant Otter<38><[U:1:64705210]><Blue>\" with \"scattergun\" (attacker_position \"-724 -1168 -20\") (victim_position \"-831 -388 -228\")", // killed
-		"L 03/10/2019 - 20:43:36: \"Jt<5><[U:1:89587820]><Blue>\" triggered \"kill assist\" against \"flexasaurus<45><[U:1:80409878]><Red>\" (assister_position \"-1157 -608 -241\") (attacker_position \"-1421 -616 -249\") (victim_position \"-573 -453 -196\")", // kill assist
-		"L 05/20/2018 - 02:12:20: \"ethansito<7><[U:1:49734297]><Red>\" triggered \"jarate_attack\" against \"Carbon8ed<17><[U:1:228222613]><Blue>\" with \"tf_weapon_jar\" (attacker_position \"2422 -937 411\") (victim_position \"1488 -1573 166\")", // jarate_attack
-		"L 05/20/2018 - 02:12:27: \"ScottLuck<10><[U:1:97187490]><Blue>\" triggered \"killedobject\" (object \"OBJ_SENTRYGUN\") (weapon \"pda_engineer\") (objectowner \"ScottLuck<10><[U:1:97187490]><Blue>\") (attacker_position \"1455 -1580 128\")", // killedobject
-		"L 05/20/2018 - 02:12:25: \"Floppy Bananas<15><[U:1:282746388]><Red>\" triggered \"healed\" against \"xXDJVinylScratchXx<5><[U:1:97967427]><Red>\" (healing \"34\")", // healed
-		"L 05/20/2018 - 02:12:37: \"xXDJVinylScratchXx<5><[U:1:97967427]><Red>\" triggered \"damage\" against \"Catfish<19><[U:1:196217395]><Blue>\" (damage \"19\") (weapon \"obj_sentrygun\")", // damage
-		"L 05/20/2018 - 02:12:52: \"IWANNAFUCKURBESTFRIEND<18><[U:1:208757376]><Red>\" triggered \"medic_death\" against \"snek eatur<20><[U:1:119864368]><Blue>\" (healing \"2296\") (ubercharge \"0\")", // medic_death
-		"L 05/20/2018 - 02:12:52: \"snek eatur<20><[U:1:119864368]><Blue>\" triggered \"medic_death_ex\" (uberpct \"76\")", // medic_death_ex non-full uber
-		"L 05/20/2018 - 02:12:52: \"snek eatur<20><[U:1:119864368]><Blue>\" triggered \"medic_death_ex\" (uberpct \"100\")" // medic_death_ex full uber
+		"L 03/10/2019 - 20:43:19: \"testname<45><[U:1:80409878]><Red>\" killed \"testname<38><[U:1:64705210]><Blue>\" with \"scattergun\" (attacker_position \"-724 -1168 -20\") (victim_position \"-831 -388 -228\")", // killed
+		"L 03/10/2019 - 20:43:36: \"testname<5><[U:1:89587820]><Blue>\" triggered \"kill assist\" against \"testname<45><[U:1:80409878]><Red>\" (assister_position \"-1157 -608 -241\") (attacker_position \"-1421 -616 -249\") (victim_position \"-573 -453 -196\")", // kill assist
+		"L 05/20/2018 - 02:12:20: \"testname<7><[U:1:49734297]><Red>\" triggered \"jarate_attack\" against \"testname<17><[U:1:228222613]><Blue>\" with \"tf_weapon_jar\" (attacker_position \"2422 -937 411\") (victim_position \"1488 -1573 166\")", // jarate_attack
+		"L 05/20/2018 - 02:12:27: \"testname1<10><[U:1:97187490]><Blue>\" triggered \"killedobject\" (object \"OBJ_SENTRYGUN\") (weapon \"pda_engineer\") (objectowner \"testname2<10><[U:1:97187490]><Blue>\") (attacker_position \"1455 -1580 128\")", // killedobject
+		"L 05/20/2018 - 02:12:25: \"testname<15><[U:1:282746388]><Red>\" triggered \"healed\" against \"testname<5><[U:1:97967427]><Red>\" (healing \"34\")", // healed
+		"L 05/20/2018 - 02:12:37: \"testname<5><[U:1:97967427]><Red>\" triggered \"damage\" against \"testname<19><[U:1:196217395]><Blue>\" (damage \"19\") (weapon \"obj_sentrygun\")", // damage
+		"L 05/20/2018 - 02:12:52: \"testname<18><[U:1:208757376]><Red>\" triggered \"medic_death\" against \"testname<20><[U:1:119864368]><Blue>\" (healing \"2296\") (ubercharge \"0\")", // medic_death
+		"L 05/20/2018 - 02:12:52: \"testname<20><[U:1:119864368]><Blue>\" triggered \"medic_death_ex\" (uberpct \"76\")", // medic_death_ex non-full uber
+		"L 05/20/2018 - 02:12:52: \"testname<20><[U:1:119864368]><Blue>\" triggered \"medic_death_ex\" (uberpct \"100\")" // medic_death_ex full uber
 	};
 	
-	std::size_t desc_start[9] = {
-		64, 66, 72, 74, 79, 81, 87, 76, 76
-	};
+	// I can't think of a better way of writing this right now
+	std::size_t desc_start[9];
+	for (std::size_t i=0; i<8; ++i) {
+		desc_start[i] = lines[i].find(potg::POINTS_ARRAY[i]);
+	}
+	desc_start[8] = lines[8].find(potg::POINTS_ARRAY[7]);
+	// separate bc I couldn't think of a way at the moment to do it w/o having it separate.
 	
 	double points[9] = {
 		25, 10, 2, 5, 34, 38, -5, 3.8, 10
 	};
 	
-	std::string names[9] = {
-		"", "", "", "", "", "", "IWANNAFUCKURBESTFRIEND", "", ""
-	};
+	std::bitset<9> is_desc(std::string("001000000"));
+	// bits are in reverse order, so the first 6 are false, then true, then last 2 are false.
 	
 	for (size_t i=0; i<9; ++i) {
-		std::tuple<double, std::string> t = potg::calculate_points(lines[i], desc_start[i]);
+		std::tuple<double, bool> t = potg::calculate_points(lines[i], desc_start[i]);
 		if (i < 7) {
 			EXPECT_EQ(std::get<0>(t), points[i]);
 			// thank you ints for being easily represented in binary
@@ -88,13 +92,13 @@ TEST(ParseTests, CalculatePoints) {
 			EXPECT_TRUE( (std::get<0>(t) > (points[i]-0.01)) && (std::get<0>(t) < (points[i]+0.01)) );
 			// gotta love that floating point number precision
 		}
-		EXPECT_EQ(std::get<1>(t), names[i]);
+		EXPECT_EQ(std::get<1>(t), is_desc[i]);
 	}
 }
 
 TEST(DescriptorTests, InVector) {
 	std::vector<potg::PlayerStats> psv;
-	std::string test_name = "Cookie";
+	std::string test_name = "Gamma";
 	
 	EXPECT_EQ(potg::in_vector(psv, test_name), std::string::npos);
 	// looking in empty vector
@@ -105,7 +109,7 @@ TEST(DescriptorTests, InVector) {
 	EXPECT_EQ(potg::in_vector(psv, test_name), std::string::npos);
 	// looking in non-empty vector without the name
 	
-	psv.push_back(potg::PlayerStats("Cookie"));
+	psv.push_back(potg::PlayerStats("Gamma"));
 	
 	EXPECT_EQ(potg::in_vector(psv, test_name), 2);
 	// looking in non-empty vector with the name
@@ -114,8 +118,20 @@ TEST(DescriptorTests, InVector) {
 TEST(DescriptorTests, DescriptorInLine) {
 	std::vector<potg::PlayerStats> psv;
 	potg::PlayerInfo pi;
-	potg::DriverInfo di("L 05/20/2018 - 02:10:04: World triggered \"Round_Start\"", false, "", psv, pi);
+	potg::DriverInfo di("L 05/20/2018 - 02:24:48: World triggered \"Round_Win\" (winner \"Red\")", true, "", psv, pi);
 	
 	descriptor_in_line(di);
+	EXPECT_EQ(di.round_in_progress, false);
+	// check that round in progress gets changed from true to false
+	
+	di.line = "L 05/20/2018 - 02:10:04: World triggered \"Round_Start\"";
+	descriptor_in_line(di);
 	EXPECT_EQ(di.round_in_progress, true);
+	// check that round in progress gets changed from false to true
+	
+	di.line = "L 05/20/2018 - 02:23:27: \"Carbon8ed<17><[U:1:228222613]><Blue>\" triggered \"damage\" against \"quank<3><[U:1:85815930]><Red>\" (damage \"54\") (weapon \"tf_projectile_pipe_remote\")";
+	EXPECT_EQ(di.all_players.size(), 0);
+	descriptor_in_line(di);
+	EXPECT_EQ(di.all_players.size(), 1);
+	// 
 }

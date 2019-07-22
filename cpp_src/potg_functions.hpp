@@ -121,27 +121,31 @@ namespace potg {
 	
 	/*
 	 * description:
-	 * 	returns a double for the number of points that the current line was worth. 
+	 * 	returns a double for the number of points that the current line was worth and
+	 *  a bool of whether to save the name to the med_killer variable of DriverInfo.
 	 * parameters:
 	 * 	line: current line from the log file
 	 * 	descriptor_start: the index where the description starts
 	 */
-	std::tuple<double, std::string> calculate_points(const std::string& line, const std::size_t& descriptor_start) {
-		std::string descriptor(""), med_killer("");
+	std::tuple<double, bool> calculate_points(const std::string& line, const std::size_t& descriptor_start) {
+		std::string descriptor("");
+		bool med_killer(false);
 		int index = descriptor_start;
 		while (line[index] != '\"') {
 			descriptor += line[index];
 			index++;
 		}
-		double value = POINTS[descriptor];
 		int descriptor_value = SWITCH_VALUE[descriptor];
+		// have to get this value before I add the quotation mark
+		descriptor += "\"";
+		// have to add the quotation at the end bc of the dumbass way I've set things up.
+		double value = POINTS[descriptor];
 		switch(descriptor_value) {
 			case 0: // killed
 			case 1: // kill assist
 			case 2: // jarate_attack
 			case 3: // killedobject
-				// do nothing because we just want the value, but dont want it to return an error
-				// I could probably just not have this and rewrite it, but maybe later
+				// do nothing because we just want the value, the rest scale
 				break;
 			case 4: // healed
 				{
@@ -161,7 +165,7 @@ namespace potg {
 				break;
 			case 6: // medic_death
 				{
-					med_killer = get_name(line);
+					med_killer = true;
 				}
 				break;
 			case 7: // medic_death_ex
@@ -171,7 +175,7 @@ namespace potg {
 					// first index of the uber percentae when killed
 					int uberpct = std::stoi(get_num(line, medic_index));
 					value *= uberpct;
-					value += ((uberpct/100) * (-1 * POINTS["medic_death"]));
+					value += ((uberpct/100) * (-1 * POINTS["medic_death\""]));
 					// integer division, so if the uber was full it'll equal 1
 					// then it multiplies the negative number from medic death by -0.5, as a bonus for killing a medic with full uber
 					// so with a full uber it would be 100*0.05 = 5 and 1*-1*-5 = 5, which would bring the total up to 30
@@ -208,11 +212,17 @@ namespace potg {
 					std::size_t descriptor_start = di.line.find(map_element.first);
 					if (descriptor_start != std::string::npos) {
 						// if the descriptor is in the line then
-						std::tuple<double, std::string> points_med = calculate_points(di.line, descriptor_start);
-						di.medic_killer = std::get<1>(points_med);
-						
+						std::tuple<double, bool> points_med = calculate_points(di.line, descriptor_start);
+						// double is the points amount
+						// bool is whether the descriptor was medic_death
 						int time_of_play = time_to_seconds(di.line);
+						// converts the time at the beginning of the line to an int number of seconds
 						std::string scorer_name = get_name(di.line);
+						// gets the name of the scorer of the line
+						if (std::get<1>(points_med)) {
+							di.medic_killer = scorer_name;
+							// sets the DriverInfo string to the name if the bool returned was true.
+						}
 						std::size_t name_index = in_vector(di.all_players, scorer_name);
 						if (name_index == std::string::npos) {
 							// if it returned npos, then that player is not in the queue

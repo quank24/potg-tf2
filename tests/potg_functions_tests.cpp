@@ -129,9 +129,16 @@ TEST(DescriptorTests, DescriptorInLine) {
 	EXPECT_EQ(di.round_in_progress, true);
 	// check that round in progress gets changed from false to true
 	
-	di.line = "L 05/20/2018 - 02:23:27: \"Carbon8ed<17><[U:1:228222613]><Blue>\" triggered \"damage\" against \"quank<3><[U:1:85815930]><Red>\" (damage \"54\") (weapon \"tf_projectile_pipe_remote\")";
+	di.line = "L 05/20/2018 - 02:23:27: \"testname<17><[U:1:228222613]><Blue>\" triggered \"damage\" against \"quank<3><[U:1:85815930]><Red>\" (damage \"54\") (weapon \"tf_projectile_pipe_remote\")";
 	EXPECT_EQ(di.all_players.size(), 0);
 	descriptor_in_line(di);
 	EXPECT_EQ(di.all_players.size(), 1);
-	// 
+	// check that a PlayerStats was added to the vector
+	EXPECT_EQ(di.all_players[0].name, "testname");
+	// check that the name was added correctly
+	EXPECT_EQ(di.all_players[0].ten_second_queue.size(), 1);
+	// check that the element was added to the queue
+	EXPECT_EQ(std::get<0>(di.all_players[0].ten_second_queue.front()), 8'607);
+	EXPECT_EQ(std::get<1>(di.all_players[0].ten_second_queue.front()), 108);
+	// check that the correct values were placed in the tuple in the queue
 }

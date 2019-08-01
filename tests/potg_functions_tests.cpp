@@ -116,23 +116,25 @@ TEST(DescriptorTests, InVector) {
 }
 
 TEST(DescriptorTests, DescriptorInLine) {
+	std::string filler;
 	std::vector<potg::PlayerStats> psv;
 	potg::PlayerInfo pi;
 	potg::DriverInfo di("L 05/20/2018 - 02:24:48: World triggered \"Round_Win\" (winner \"Red\")", true, "", psv, pi);
 	
-	descriptor_in_line(di);
+	filler = descriptor_in_line(di);
 	EXPECT_EQ(di.round_in_progress, false);
 	// check that round in progress gets changed from true to false
 	
 	di.line = "L 05/20/2018 - 02:10:04: World triggered \"Round_Start\"";
-	descriptor_in_line(di);
+	filler = descriptor_in_line(di);
 	EXPECT_EQ(di.round_in_progress, true);
 	// check that round in progress gets changed from false to true
 	
 	di.line = "L 05/20/2018 - 02:23:27: \"testname<17><[U:1:228222613]><Blue>\" triggered \"damage\" against \"quank<3><[U:1:85815930]><Red>\" (damage \"54\") (weapon \"tf_projectile_pipe_remote\")";
 	EXPECT_EQ(di.all_players.size(), 0);
-	descriptor_in_line(di);
+	filler = descriptor_in_line(di);
 	EXPECT_EQ(di.all_players.size(), 1);
+	EXPECT_EQ(filler, "testname");
 	// check that a PlayerStats was added to the vector
 	EXPECT_EQ(di.all_players[0].name, "testname");
 	// check that the name was added correctly
@@ -144,19 +146,19 @@ TEST(DescriptorTests, DescriptorInLine) {
 	
 	di.line = "L 05/20/2018 - 02:23:28: \"testname<17><[U:1:228222613]><Blue>\" triggered \"damage\" against \"quank<3><[U:1:85815930]><Red>\" (damage \"54\") (weapon \"tf_projectile_pipe_remote\")";
 	// added one second to the time
-	descriptor_in_line(di);
+	filler = descriptor_in_line(di);
 	EXPECT_EQ(di.all_players.size(), 1);
 	// same name, so should still only be one player
 	EXPECT_EQ(di.all_players[0].ten_second_deque.size(), 2);
 	// a second set should be added to the deque
 	
 	di.line = "L 05/20/2018 - 02:21:54: \"testname1<17><[U:1:228222613]><Blue>\" triggered \"medic_death\" against \"testname2<15><[U:1:282746388]><Red>\" (healing \"3731\") (ubercharge \"0\")";
-	descriptor_in_line(di);
+	filler = descriptor_in_line(di);
 	EXPECT_EQ(di.medic_killer, "testname1");
 	// check that medic_killer string gets set
 	
 	di.line = "L 05/20/2018 - 02:21:54: \"testname2<15><[U:1:282746388]><Red>\" triggered \"medic_death_ex\" (uberpct \"95\")";
-	descriptor_in_line(di);
+	filler = descriptor_in_line(di);
 	EXPECT_EQ(di.all_players[1].name, "testname1");
 	// check that testname1 is the second element
 	EXPECT_EQ(di.all_players[1].ten_second_deque.size(), 2);

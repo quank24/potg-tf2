@@ -203,7 +203,8 @@ namespace potg {
 	 * parameters:
 	 * 	di: struct that contains:
 	 */
-	void descriptor_in_line(DriverInfo& di) {
+	std::string descriptor_in_line(DriverInfo& di) {
+		std::string scorer_name = "";
 		if (di.round_in_progress) {
 			if (di.line.find(WORLD_TRIGGERED_WIN) != std::string::npos) {
 				di.round_in_progress = false;
@@ -217,7 +218,7 @@ namespace potg {
 						// bool is whether the descriptor was medic_death
 						int time_of_play = time_to_seconds(di.line);
 						// converts the time at the beginning of the line to an int number of seconds
-						std::string scorer_name = get_name(di.line);
+						scorer_name = get_name(di.line);
 						// gets the name of the scorer of the line
 						if (di.medic_killer != "") {
 							scorer_name = di.medic_killer;
@@ -251,7 +252,7 @@ namespace potg {
 			  di.round_in_progress = true;
 			}
 		}
-	  return;
+	  return scorer_name;
 	}// end descriptor_in_line
 
 
@@ -260,7 +261,7 @@ namespace potg {
 	 */
 	void update_driver_info(DriverInfo di) {
 		for (std::size_t i=0; i<di.all_players.size(); ++i) {
-			
+			//all_players[i]
 		}
 	}
 

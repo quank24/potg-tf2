@@ -219,6 +219,12 @@ namespace potg {
 						// converts the time at the beginning of the line to an int number of seconds
 						std::string scorer_name = get_name(di.line);
 						// gets the name of the scorer of the line
+						if (di.medic_killer != "") {
+							scorer_name = di.medic_killer;
+							// give the points to the killer
+							di.medic_killer = "";
+							// reset the string to empty
+						}
 						if (std::get<1>(points_med)) {
 							di.medic_killer = scorer_name;
 							// sets the DriverInfo string to the name if the bool returned was true.
@@ -247,6 +253,16 @@ namespace potg {
 		}
 	  return;
 	}// end descriptor_in_line
+
+
+	/*
+	 * 
+	 */
+	void update_driver_info(DriverInfo di) {
+		for (std::size_t i=0; i<di.all_players.size(); ++i) {
+			
+		}
+	}
 
 	/*
 	 * 

@@ -11,7 +11,7 @@
 #include <cstdlib> 	// exit, size_t
 #include <fstream>	// file i/o
 #include <iomanip>	// std::setw(int), std::setfill('0')
-#include <queue>	// queue operations
+#include <deque>	// deque operations
 #include <sstream>	// std::stringstream, .str()
 #include <string>	// string operations
 #include <vector>	// vector operations
@@ -237,7 +237,7 @@ namespace potg {
 							name_index = di.all_players.size()-1;
 							// sets the name index to the new vector element
 						}
-						di.all_players[name_index].ten_second_queue.push(std::make_tuple(time_of_play, std::get<0>(points_med)));
+						di.all_players[name_index].ten_second_deque.push_back(std::make_tuple(time_of_play, std::get<0>(points_med)));
 						// adds the tuple to that player's queue
 						break;
 						// leave the for loop since we don't need to look for a match anymore

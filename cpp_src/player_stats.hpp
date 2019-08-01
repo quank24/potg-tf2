@@ -9,16 +9,16 @@ namespace potg {
 	struct PlayerStats {
 		PlayerStats() {
 			name = "";
-			// ten_second_queue will start off empty
+			// ten_second_deque will start off empty
 		}
 		PlayerStats(std::string n) : name(n) {}
-		PlayerStats(std::string n, std::queue<std::tuple<int,double>> tsq) : name(n), ten_second_queue(tsq) {}
+		PlayerStats(std::string n, std::deque<std::tuple<int,double>> tsd) : name(n), ten_second_deque(tsd) {}
 		PlayerStats(const PlayerStats& ps) {
 			name = ps.name;
-			ten_second_queue = ps.ten_second_queue;
+			ten_second_deque = ps.ten_second_deque;
 		}
 		std::string name;
-		std::queue<std::tuple<int, double>> ten_second_queue;
+		std::deque<std::tuple<int, double>> ten_second_deque;
 	};
 }
 #endif  // PLAYER_STATS_HPP

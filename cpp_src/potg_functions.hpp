@@ -203,8 +203,9 @@ namespace potg {
 	 * parameters:
 	 * 	di: struct that contains:
 	 */
-	std::string descriptor_in_line(DriverInfo& di) {
+	void descriptor_in_line(DriverInfo& di) {
 		std::string scorer_name = "";
+		//std::size_t name_index(std::string::npos), time_of_play(std::string::npos);
 		if (di.round_in_progress) {
 			if (di.line.find(WORLD_TRIGGERED_WIN) != std::string::npos) {
 				di.round_in_progress = false;
@@ -216,7 +217,7 @@ namespace potg {
 						std::tuple<double, bool> points_med = calculate_points(di.line, descriptor_start);
 						// double is the points amount
 						// bool is whether the descriptor was medic_death
-						int time_of_play = time_to_seconds(di.line);
+						di.time_of_play = time_to_seconds(di.line);
 						// converts the time at the beginning of the line to an int number of seconds
 						scorer_name = get_name(di.line);
 						// gets the name of the scorer of the line
@@ -230,20 +231,20 @@ namespace potg {
 							di.medic_killer = scorer_name;
 							// sets the DriverInfo string to the name if the bool returned was true.
 						}
-						std::size_t name_index = in_vector(di.all_players, scorer_name);
-						if (name_index == std::string::npos) {
+						di.name_index = in_vector(di.all_players, scorer_name);
+						if (di.name_index == std::string::npos) {
 							// if it returned npos, then that player is not in the queue
 							di.all_players.push_back(PlayerStats(scorer_name));
 							// adds new element to end of vector
-							name_index = di.all_players.size()-1;
+							di.name_index = di.all_players.size()-1;
 							// sets the name index to the new vector element
 						}
-						di.all_players[name_index].ten_second_deque.push_back(std::make_tuple(time_of_play, std::get<0>(points_med)));
+						di.all_players[di.name_index].ten_second_deque.push_back(std::make_tuple(di.time_of_play, std::get<0>(points_med)));
 						// adds the tuple to that player's queue
 						break;
 						// leave the for loop since we don't need to look for a match anymore
 					}
-				}//end for
+				}//end for auto &map_element
 			}
 		} else {
 			std::size_t start = di.line.find(WORLD_TRIGGERED_START);
@@ -252,16 +253,16 @@ namespace potg {
 			  di.round_in_progress = true;
 			}
 		}
-	  return scorer_name;
+	  return;
 	}// end descriptor_in_line
 
 
 	/*
-	 * 
+	 * iterate through the scorer's deque, pop any old points off, check if it's better than the current max
 	 */
-	void update_driver_info(DriverInfo di) {
+	void update_driver_info(DriverInfo di, std::string scorer_name, int time) {
 		for (std::size_t i=0; i<di.all_players.size(); ++i) {
-			//all_players[i]
+			//if (all_players[i].ten_second_deque[i]
 		}
 	}
 

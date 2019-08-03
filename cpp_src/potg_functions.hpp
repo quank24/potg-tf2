@@ -260,11 +260,28 @@ namespace potg {
 	/*
 	 * iterate through the scorer's deque, pop any old points off, check if it's better than the current max
 	 */
-	void update_driver_info(DriverInfo di, std::string scorer_name, int time) {
+	void update_driver_info(DriverInfo di) {
+		double new_score(0);
 		for (std::size_t i=0; i<di.all_players.size(); ++i) {
-			//if (all_players[i].ten_second_deque[i]
+			int difference = std::get<0>(di.all_players[di.name_index].ten_second_deque[i]) - di.time_of_play;
+			// so it doesn't have to calculate the value twice for the comparisons
+			if (difference >= 0 && difference <= 10) {
+				new_score += std::get<1>(di.all_players[di.name_index].ten_second_deque[i]);
+			} else {
+				di.all_players[di.name_index].ten_second_deque.pop_front();
+				// it should only pop off items at the front, if it pops off stuff in the middle then we have a problem
+				// might be a problem if the game happens during the change between hour 23 and 0
+			}
+		} // end for
+		if (new_score >= di.best.points) {
+			di.best.name = di.all_players[di.name_index].name;
+			// store name of the current player
+			di.best.time = std::get<0>(di.all_players[di.name_index].ten_second_deque[0]);
+			// store the time of the beginning
+			di.best.points = new_score;
+			// store the point total for that 10 second time
 		}
-	}
+	}// end update_driver_info
 
 	/*
 	 * 

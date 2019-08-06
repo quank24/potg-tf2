@@ -1,0 +1,4 @@
+# files types to not be pushed
+*.exe
+*.o
+*.stackdump

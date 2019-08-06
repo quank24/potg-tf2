@@ -264,28 +264,33 @@ namespace potg {
 	 * 	di the info passed from the driver with the deque info
 	 */
 	void update_driver_info(DriverInfo& di) {
-		double new_score(0);
-		for (std::size_t i=0; i<di.all_players[di.name_index].ten_second_deque.size(); ++i) {
-			int difference = di.time_of_play - std::get<0>(di.all_players[di.name_index].ten_second_deque[i]);
-			// so it doesn't have to calculate the value twice for the comparisons
-			if (difference >= 0 && difference <= 10) {
-				new_score += std::get<1>(di.all_players[di.name_index].ten_second_deque[i]);
-				// add the points to the running total
-			} else {
-				di.all_players[di.name_index].ten_second_deque.pop_front();
-				// it should only pop off items at the front, if it pops off stuff in the middle then we have a problem
-				// might be a problem if the game happens during the change between hour 23 and 0
-				--i;
-				// one less element, need to offset the increment
+		if (di.name_index != std::string::npos) {
+			double new_score(0);
+			for (std::size_t i=0; i<di.all_players[di.name_index].ten_second_deque.size(); ++i) {
+				int difference = di.time_of_play - std::get<0>(di.all_players[di.name_index].ten_second_deque[i]);
+				// so it doesn't have to calculate the value twice for the comparisons
+				if (difference >= 0 && difference <= 10) {
+					new_score += std::get<1>(di.all_players[di.name_index].ten_second_deque[i]);
+					// add the points to the running total
+				} else {
+					di.all_players[di.name_index].ten_second_deque.pop_front();
+					// it should only pop off items at the front, if it pops off stuff in the middle then we have a problem
+					// might be a problem if the game happens during the change between hour 23 and 0
+					--i;
+					// one less element, need to offset the increment
+				}
+			} // end for
+			
+			if (new_score >= di.best.points) {
+				di.best.name = di.all_players[di.name_index].name;
+				// store name of the current player
+				di.best.time = std::get<0>(di.all_players[di.name_index].ten_second_deque[0]);
+				// store the time of the beginning
+				di.best.points = new_score;
+				// store the point total for that 10 second time
 			}
-		} // end for
-		if (new_score >= di.best.points) {
-			di.best.name = di.all_players[di.name_index].name;
-			// store name of the current player
-			di.best.time = std::get<0>(di.all_players[di.name_index].ten_second_deque[0]);
-			// store the time of the beginning
-			di.best.points = new_score;
-			// store the point total for that 10 second time
+			di.name_index = std::string::npos;
+			// reset name_index
 		}
 	}// end update_driver_info
 
@@ -293,29 +298,32 @@ namespace potg {
 	 * 
 	 */
 	void driver(char* file_name) {
-		std::cout << "in driver\n";
 		std::ifstream fin(file_name);
 		if (fin.fail()) {
 			std::cout << "Could not open " << file_name << std::endl;
 			exit(1);
 		}
-		std::cout << "opened file\n";
+		std::cout << "Opened file\n";
 		// if past the fail if-statement, then the file successfully opened.
 
 		std::string line;
 		// stores the lines in the log file, one by one
-		//DriverInfo di(false, "", "", 0, 0, std::vector<PlayerStats>, PlayerInfo("none", 0), );
-		DriverInfo di;
+		std::vector<PlayerStats> psv;
+		PlayerInfo pi;
+		DriverInfo di(false, "", "", std::string::npos, std::string::npos, psv, pi);
+		//DriverInfo di;
 		// object that will be passed to the descriptor function
-		while (fin >> line) {
+		while (getline(fin, line)) {
 			di.line = line;
 			descriptor_in_line(di);
-			update_driver_info(di);
+			if (di.round_in_progress) {
+				update_driver_info(di);
+			}
 		}
 		fin.close();
 		std::cout << "name: " << di.best.name << "\n"
 			<< "time: " << seconds_to_time(di.best.time) << "\n"
-			<< "points" << di.best.points << "\n\n";
+			<< "points: " << di.best.points << "\n\n";
 	}// end driver
 
 }// end namespace potg

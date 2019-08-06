@@ -8,7 +8,7 @@ main:
 
 all:
 	g++ ${CPPSTD} ${CXXFLAGS} main.cpp -o potg;
-	cd tests; make
+	cd tests; make tests
 
 tests:
 	cd tests; make tests

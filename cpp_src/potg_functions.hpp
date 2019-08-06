@@ -9,13 +9,13 @@
  * INCLUDES
  * -----------------------------------------------------------------------*/
 #include <cstdlib> 	// exit, size_t
+#include <deque>	// deque operations
 #include <fstream>	// file i/o
 #include <iomanip>	// std::setw(int), std::setfill('0')
-#include <deque>	// deque operations
 #include <sstream>	// std::stringstream, .str()
 #include <string>	// string operations
 #include <vector>	// vector operations
-#include <typeinfo>
+#include <typeinfo>	// i don't remember why i included this
 #include "constants.hpp"
 #include "player_stats.hpp"
 #include "player_info.hpp"
@@ -258,19 +258,25 @@ namespace potg {
 
 
 	/*
-	 * iterate through the scorer's deque, pop any old points off, check if it's better than the current max
+	 * description:
+	 * 	iterate through the scorer's deque, pop any old points off, check if it's better than the current max
+	 * parameter:
+	 * 	di the info passed from the driver with the deque info
 	 */
-	void update_driver_info(DriverInfo di) {
+	void update_driver_info(DriverInfo& di) {
 		double new_score(0);
-		for (std::size_t i=0; i<di.all_players.size(); ++i) {
-			int difference = std::get<0>(di.all_players[di.name_index].ten_second_deque[i]) - di.time_of_play;
+		for (std::size_t i=0; i<di.all_players[di.name_index].ten_second_deque.size(); ++i) {
+			int difference = di.time_of_play - std::get<0>(di.all_players[di.name_index].ten_second_deque[i]);
 			// so it doesn't have to calculate the value twice for the comparisons
 			if (difference >= 0 && difference <= 10) {
 				new_score += std::get<1>(di.all_players[di.name_index].ten_second_deque[i]);
+				// add the points to the running total
 			} else {
 				di.all_players[di.name_index].ten_second_deque.pop_front();
 				// it should only pop off items at the front, if it pops off stuff in the middle then we have a problem
 				// might be a problem if the game happens during the change between hour 23 and 0
+				--i;
+				// one less element, need to offset the increment
 			}
 		} // end for
 		if (new_score >= di.best.points) {
@@ -286,23 +292,31 @@ namespace potg {
 	/*
 	 * 
 	 */
-/*	void driver(std::string p_file_name) {
-		ifstream fin(p_file_name.c_str());
+	void driver(char* file_name) {
+		std::cout << "in driver\n";
+		std::ifstream fin(file_name);
 		if (fin.fail()) {
-			std::cout << "Could not open " << p_file_name << std::endl;
+			std::cout << "Could not open " << file_name << std::endl;
 			exit(1);
 		}
+		std::cout << "opened file\n";
 		// if past the fail if-statement, then the file successfully opened.
 
 		std::string line;
 		// stores the lines in the log file, one by one
-		DriverInfo di("", false, "", std::vector<PlayerStats>, PlayerInfo("none", 0), );
+		//DriverInfo di(false, "", "", 0, 0, std::vector<PlayerStats>, PlayerInfo("none", 0), );
+		DriverInfo di;
 		// object that will be passed to the descriptor function
 		while (fin >> line) {
 			di.line = line;
 			descriptor_in_line(di);
+			update_driver_info(di);
 		}
+		fin.close();
+		std::cout << "name: " << di.best.name << "\n"
+			<< "time: " << seconds_to_time(di.best.time) << "\n"
+			<< "points" << di.best.points << "\n\n";
 	}// end driver
-*/
+
 }// end namespace potg
 #endif // POTG_FUNCTION_HPP

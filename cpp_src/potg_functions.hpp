@@ -157,9 +157,15 @@ namespace potg {
 				break;
 			case 5: // damage
 				{
-					std::size_t damage_index = line.find(">\" (damage \"");
-					damage_index += 12;
-					// first index of the damage amount
+					std::size_t damage_index = line.find(") (realdamage \"");
+					if (damage_index == std::string::npos) {
+						damage_index = line.find(">\" (damage \"");
+						damage_index += 12;
+						// first index of the damage amount
+					} else {
+						damage_index += 15;
+						// first index of the real damage amount
+					}
 					value *= std::stoi(get_num(line, damage_index));
 				}
 				break;

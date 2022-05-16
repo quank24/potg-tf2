@@ -309,7 +309,7 @@ namespace potg {
 			std::cout << "Could not open " << file_name << std::endl;
 			exit(1);
 		}
-		std::cout << "Opened file\n";
+		
 		// if past the fail if-statement, then the file successfully opened.
 
 		std::string line;

@@ -1,7 +1,7 @@
 # Makefile for potg
 
 CPPSTD = -std=c++14
-# CXXFLAGS =
+CXXFLAGS = -O3
 
 main:
 	g++ ${CPPSTD} ${CXXFLAGS} main.cpp -o potg

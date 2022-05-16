@@ -1,6 +1,3 @@
-/*
- * Reinoj, 2019
- */
 #ifndef CONSTANTS_H
 #define CONSTANTS_H
 

@@ -1,7 +1,3 @@
-/*
- * Reinoj, 2019
- */
- 
 #ifndef POTG_FUNCTION_HPP
 #define POTG_FUNCTION_HPP
 
@@ -12,6 +8,7 @@
 #include <deque>	// deque operations
 #include <fstream>	// file i/o
 #include <iomanip>	// std::setw(int), std::setfill('0')
+#include <iostream>
 #include <sstream>	// std::stringstream, .str()
 #include <string>	// string operations
 #include <vector>	// vector operations
@@ -317,7 +314,6 @@ namespace potg {
 		std::vector<PlayerStats> psv;
 		PlayerInfo pi;
 		DriverInfo di(false, "", "", std::string::npos, std::string::npos, psv, pi);
-		//DriverInfo di;
 		// object that will be passed to the descriptor function
 		while (getline(fin, line)) {
 			di.line = line;

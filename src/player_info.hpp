@@ -1,7 +1,3 @@
-/*
- * Reinoj, 2019
- */
-
 #ifndef PLAYER_INFO_HPP
 #define PLAYER_INFO_HPP
 

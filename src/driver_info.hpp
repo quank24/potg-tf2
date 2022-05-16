@@ -1,7 +1,3 @@
-/*
- * Reinoj, 2019
- */
-
 #ifndef DRIVER_INFO_HPP
 #define DRIVER_INFO_HPP
 
